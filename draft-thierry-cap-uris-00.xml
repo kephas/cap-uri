@@ -28,7 +28,7 @@
       </address>
     </author>
 
-    <date day="02" month="09" year="2026" />
+    <date day="08" month="09" year="2026" />
     <keyword>capabilities</keyword>
     <keyword>authorization</keyword>
 
@@ -560,20 +560,23 @@ fragment      = &lt;fragment, see [RFC3986], Section 3.5>
 	    between mutually untrusting agents, but not with capability-URIs.
 	  </t>
 	  <t>
-	    For example, even if agent Mallet is running inside a membrane, agent Ned has a
-	    capability-URI to Mallet wrapped by the membrane, and there is no other channel between
-	    them, when Ned invokes the capability-URI, agent Mallet can respond with an encrypted
-	    capability-URI and the secret key needed to decrypt it. No membrane can expect to detect
-	    every way that this scenario could play out and trying to detect many of them might be
-	    too expensive in terms of computation and latency.
+	    For example, even if agent Mallet is running inside a <xref
+	    target="membrane">membrane</xref>, agent Ned has a capability-URI to Mallet wrapped by
+	    the membrane, and there is no other channel between them, when Ned invokes the
+	    capability-URI, agent Mallet can respond with an encrypted capability-URI and the secret
+	    key needed to decrypt it. No membrane can expect to detect every way that this scenario
+	    could play out and trying to detect many of them might be too expensive in terms of
+	    computation and latency.
 	  </t>
 	  <t>
 	    Still, to protect services that always give authority through full capability-URIs, a
 	    membrane remains a reliable tool to provide safety and flexibility. Such services SHOULD
 	    only use capability-URIs with their scheme, and SHOULD NOT rely on relative references,
 	    except when the media type is unambiguous about which part of the response should be
-	    resolved as a URI. This implies following <xref target="rest" format="none">REST</xref>,
-	    instead of having clients construct URIs from out-of-band logic and pieces of data.
+	    resolved as a URI (like <xref target="html-living" format="none">HTML</xref> or <xref
+	    target="jsonld" format="none">JSON-LD</xref>). This implies following <xref
+	    target="rest" format="none">REST</xref>, instead of having clients construct URIs from
+	    out-of-band logic and pieces of data.
 	  </t>
 	</section>
       </section>
@@ -633,46 +636,69 @@ fragment      = &lt;fragment, see [RFC3986], Section 3.5>
 	  can't have an ACL about the ACL, or you would need an ACL about the ACL about the ACL, and
 	  so on…
 	</t>
-	<t>
-	  Fortunately, with capabilities, we have several solutions that don't have this issue of
-	  infinite recursion. The simplest is the pattern named the "caretaker". If <tt>Alice</tt>
-	  wants to share with <tt>Bob</tt> a revocable access to <tt>Carol</tt>, <tt>Alice</tt> can
-	  create a proxy object <tt>CarolCaretaker</tt> giving it their capability to
-	  <tt>Carol</tt>. A caretaker has two facets, each with a separate capability: a proxy facet
-	  that just forwards invocation to the capability given to it, and a revocation facet that,
-	  when invoked, removes from its internal data the capability.
-	</t>
-	<t>
-	  The architecture of the caretaker is an interesting illustration of POLA, more
-	  specifically of one of its deeper design principles and one of its benefits. The deeper
-	  design principle is to avoid having code make a policy decision when that decision could
-	  be wrong. Better have the graph of authority support the desired policy by
-	  construction. The caretaker doesn't decide that it should act as a proxy or not. When
-	  revoked, it cannot act as a proxy anymore. The benefit is that a revoked caretaker cannot
-	  be abused, confused or hacked later to exploit the authority initially given to it: it
-	  doesn't hold that authority anymore.
-	</t>
-	<t>
-	  In the case of the caretaker, this design principle emerges necessarily from POLA: when
-	  the caretaker should stop working, it doesn't need the authority anymore. So it shouldn't
-	  keep it. The trick is to look for other cases where a decision could be transformed into a
-	  dynamic graph of capabilities that embodies the policy behind the decision.
-	</t>
-	<t>
-	  <xref target="weather"/> shows an example of creating, sending, using and revoking a
-	  caretaker.
-	</t>
-	<t>
-	  When the response from requesting a capability-URI may contain further capabilities, a
-	  simple caretaker isn't sufficient to safely revoke authority. With just a caretaker, the
-	  initial capability would stop being proxied, but the user of the caretaker could continue
-	  to use any authority received through the caretaker as capabilities (which would not be
-	  proxied). In such a case, a safer and slightly more complex solution is the membrane
-	  (described in <xref target="robust" format="title"/>, figure 9.3, and in <xref
-	  target="proxies" format="title"/>, section 5). When a membrane sees a capability-URI in
-	  the response, it substitutes it with a capability-URI to a caretaker. When the membrane is
-	  revoked, all the caretakers it created are revoked as well.
-	</t>
+
+	<section title="Caretaker">
+	  <t>
+	    Fortunately, with capabilities, we have several solutions that don't have this issue of
+	    infinite recursion. The simplest is the pattern named the "caretaker". If <tt>Alice</tt>
+	    wants to share with <tt>Bob</tt> a revocable access to <tt>Carol</tt>, <tt>Alice</tt>
+	    can create a proxy object <tt>CarolCaretaker</tt> giving it their capability to
+	    <tt>Carol</tt>. A caretaker has two facets, each with a separate capability: a proxy
+	    facet that just forwards invocation to the capability given to it, and a revocation
+	    facet that, when invoked, removes from its internal data the capability.
+	  </t>
+	  <t>
+	    The architecture of the caretaker is an interesting illustration of POLA, more
+	    specifically of one of its deeper design principles and one of its benefits. The deeper
+	    design principle is to avoid having code make a policy decision when that decision could
+	    be wrong. Better have the graph of authority support the desired policy by
+	    construction. The caretaker doesn't decide that it should act as a proxy or not. When
+	    revoked, it cannot act as a proxy anymore. The benefit is that a revoked caretaker
+	    cannot be abused, confused or hacked later to exploit the authority initially given to
+	    it: it doesn't hold that authority anymore.
+	  </t>
+	  <t>
+	    In the case of the caretaker, this design principle emerges necessarily from POLA: when
+	    the caretaker should stop working, it doesn't need the authority anymore. So it
+	    shouldn't keep it. The trick is to look for other cases where a decision could be
+	    transformed into a dynamic graph of capabilities that embodies the policy behind the
+	    decision. Note the the invariant that the code should not receive or shouldn't keep
+	    excess authority it a kind a invariant that prefectly lend itself to Edsger Dijkstra's
+	    method of "correct by construction".
+	  </t>
+	  <t>
+	    <xref target="weather"/> shows an example of creating, sending, using and revoking a
+	    caretaker.
+	  </t>
+	</section>
+
+	<section anchor="membrane" title="Membrane">
+	  <t>
+	    When the response from requesting a capability-URI may contain further capabilities, a
+	    simple caretaker isn't sufficient to safely revoke authority. With just a caretaker, the
+	    initial capability would stop being proxied, but the user of the caretaker could
+	    continue to use any authority received through the caretaker as capabilities (which
+	    would not be proxied).
+	  </t>
+	  <t>
+	    In such a case, a safer and slightly more complex solution is the membrane (described in
+	    <xref target="robust" format="title"/>, figure 9.3, and in <xref target="proxies"
+	    format="title"/>, section 5). When a membrane sees a capability-URI in the response, it
+	    substitutes it with a capability-URI to a caretaker. When the membrane is revoked, all
+	    the caretakers it created are revoked as well (but see <xref target="confinement">the
+	    limits on confinement</xref>).
+	  </t>
+	</section>
+
+	<section title="Certificate revocation">
+	  <t>
+	    When using certificate chains as capabilities (see <xref target="offatt">offline
+	    attenuation</xref>), they usually provide an automatic membrane: certificates each can
+	    have an identifier and the service can keep a list of revoked certificates. Any
+	    capability delegated from a revoked capability is also revoked. This is how <xref
+	    target="biscuit-revocation" format="none">revocation of Biscuits</xref> works.
+	  </t>
+	</section>
       </section>
 
       <section anchor="attenuation" title="Attenuation">
@@ -792,9 +818,9 @@ fragment      = &lt;fragment, see [RFC3986], Section 3.5>
 	    it (e.g. because <tt>C1</tt> designates a public key whose private key is needed to use
 	    the capability, which is the case with <xref target="zcap" format="none">zcaps</xref>
 	    and <xref target="ucan" format="none">UCANs</xref>), or it cannot extract it
-	    (e.g. because the chains actually look like <tt>[C0,C1,U1]</tt> and
-	    <tt>[C0,C1,C2,U2]</tt> and so the agent receiving the second capability misses
-	    <tt>U1</tt> to reconstruct the full parent capability, which is the case with <xref
+	    (e.g. because the chains actually look like <tt>[C0,C1,K1]</tt> and
+	    <tt>[C0,C1,C2,K2]</tt> and so the agent receiving the second capability misses
+	    <tt>K1</tt> to reconstruct the full parent capability, which is the case with <xref
 	    target="biscuit" format="none">biscuits</xref>).
 	  </t>
 	  <t>
@@ -1055,6 +1081,16 @@ fragment      = &lt;fragment, see [RFC3986], Section 3.5>
 	</front>
       </reference>
 
+      <reference anchor="biscuit-revocation"
+		 target="https://www.biscuitsec.org/docs/guides/revocation/">
+	<front>
+	  <title>Biscuit — Revocation</title>
+	  <author fullname="Geoffroy Couprie"/>
+	  <author fullname="Clément Delafargue"/>
+	  <author fullname="Cédric Corbière"/>
+	</front>
+      </reference>
+
       <reference anchor="zcap"
 		 target="https://w3c-ccg.github.io/zcap-spec/">
 	<front>
@@ -1082,6 +1118,27 @@ fragment      = &lt;fragment, see [RFC3986], Section 3.5>
 	  <title>Content Security Policy Level 3</title>
 	  <author fullname="Mike West"/>
 	  <author fullname="Antonio Sartori"/>
+	</front>
+      </reference>
+
+      <reference anchor="html-living"
+		 target="https://html.spec.whatwg.org/">
+	<front>
+	  <title>HTML Living Standard</title>
+	  <author/>
+	</front>
+      </reference>
+
+      <reference anchor="jsonld"
+		 target="https://www.w3.org/TR/json-ld/">
+	<front>
+	  <title>JSON-LD 1.1<br/>A JSON-based Serialization for Linked Data</title>
+	  <author fullname="Manu Sporny"/>
+	  <author fullname="Dave Longley"/>
+	  <author fullname="Gregg Kellogg"/>
+	  <author fullname="Markus Lanthaler"/>
+	  <author fullname="Pierre-Antoine Champin"/>
+	  <author fullname="Niklas Lindström"/>
 	</front>
       </reference>
 
