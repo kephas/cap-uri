@@ -19,7 +19,7 @@
      docName="draft-thierry-cap-uris-00"
      xmlns:xi="http://www.w3.org/2001/XInclude">
   <front>
-    <title>Capability URIs</title>
+    <title>Capability URIs and IRIs</title>
 
     <author initials="P." surname="Thierry" fullname="Pierre Thierry">
       <organization>Comonad Dev</organization>
@@ -67,15 +67,17 @@
 	</t>
 	<t>	  
 	  This specification describes URI schemes that make it possible to safely encode
-	  capabilities as URIs by combining an existing URI and some authorization data into a URI,
-	  called capability-URI.
+	  capabilities as URIs and IRIs (see <xref target="RFC3987"/>) by combining an existing URI
+	  or IRI and some authorization data into a URI or IRI, called capability-URI (for
+	  readability, we don't distinguish capability-URIs and capability-IRIs, as they don't have
+	  different security properties).
 	</t>
       </section>
 
       <section title="Architectural benefits">
 	<t>
-	  These URIs also deliver on the promises of several architectural decisions at the core of
-	  the World Wide Web. <xref target="webarch"/> notes that
+	  These URIs and IRIs also deliver on the promises of several architectural decisions at the
+	  core of the World Wide Web. <xref target="webarch"/> notes that
 	</t>
 	<blockquote>
 	  It is a strength of Web Architecture that links can be made and shared; a user who has
@@ -235,40 +237,73 @@ bar
 	    <t><tt>cap-wss-uri</tt></t>
 	  </list>
 	</t>
+	<t>
+	  The corresponding IRIs are specified by the rules
+	  <list style="symbol">
+	    <t><tt>cap-http-iri</tt></t>
+	    <t><tt>cap-https-iri</tt></t>
+	    <t><tt>cap-ws-iri</tt></t>
+	    <t><tt>cap-wss-iri</tt></t>
+	  </list>
+	</t>
 	<t><figure><artwork>
-cap-http-uri       = "cap-http" ":" cap-path [ "?" query ] [ "#" fragment ]
-cap-https-uri      = "cap-https" ":" cap-path [ "?" query ] [ "#" fragment ]
-cap-ws-uri         = "cap-ws" ":" cap-path [ "?" query ]
-cap-wss-uri        = "cap-wss" ":" cap-path [ "?" query ]
-cap-path           = absolute-cap-path / relative-cap-path
-absolute-cap-path  = "//" authorization "@" host [ ":" port ] path-abempty
-relative-cap-path  = authorization "@" path-rel
-path-rel           = segment-rel "/" path-rootless
-authorization      = [ param *( ";" param ) ]
-param              = bearer-token-param / token-format-param / y-cert-param
-bearer-token-param = "bt=" token
-token              = *( unreserved / pct-encoded / sub-delims )
-token-format-param = "tf=" token-format
-token-format       = "bisc"
-y-cert-param       = "yc=" y-cert-alg ":" y-cert-hash
-y-cert-alg         = "sha256"
-y-cert-hash        = base32
-segment-rel        = "." / ".."
-base32             =  "A" / "B" / "C" / "D" / "E" / "F" / "G" / "H" / "I" / "J" / "K" 
-base32             =/ "L" / "M" / "N" / "O" / "P" / "Q" / "R" / "S" / "T" / "U" / "V" 
-base32             =/ "W" / "X" / "Y" / "Z" / "2" / "3" / "4" / "5" / "6" / "7"
+cap-http-uri        ="cap-http" ":" cap-path [ "?" query ] [ "#" fragment ]
+cap-https-uri       = "cap-https" ":" cap-path [ "?" query ] [ "#" fragment ]
+cap-ws-uri          = "cap-ws" ":" cap-path [ "?" query ]
+cap-wss-uri         = "cap-wss" ":" cap-path [ "?" query ]
+cap-path            = absolute-cap-path / relative-cap-path
+absolute-cap-path   = "//" authorization "@" host [ ":" port ] path-abempty
+relative-cap-path   = authorization "@" path-rel
+path-rel            = segment-rel "/" path-rootless
+authorization       = [ param *( ";" param ) ]
+param               = bearer-token-param / token-format-param / y-cert-param
+bearer-token-param  = "bt=" token
+token               = *( unreserved / pct-encoded / sub-delims )
+token-format-param  = "tf=" token-format
+token-format        = "bisc"
+y-cert-param        = "yc=" y-cert-alg ":" y-cert-hash
+y-cert-alg          = "sha256"
+y-cert-hash         = base32
+segment-rel         = "." / ".."
+base32              =  "A" / "B" / "C" / "D" / "E" / "F" / "G" / "H" / "I" / "J" / "K" 
+base32              =/ "L" / "M" / "N" / "O" / "P" / "Q" / "R" / "S" / "T" / "U" / "V" 
+base32              =/ "W" / "X" / "Y" / "Z" / "2" / "3" / "4" / "5" / "6" / "7"
+
+cap-http-iri        = "cap-http" ":" cap-ipath [ "?" iquery ] [ "#" ifragment ]
+cap-https-iri       = "cap-https" ":" cap-ipath [ "?" iquery ] [ "#" ifragment ]
+cap-ws-iri          = "cap-ws" ":" cap-ipath [ "?" iquery ]
+cap-wss-iri         = "cap-wss" ":" cap-ipath [ "?" iquery ]
+cap-ipath           = absolute-cap-ipath / relative-cap-ipath
+absolute-cap-ipath  = "//" iauthorization "@" ihost [ ":" port ] ipath-abempty
+relative-cap-ipath  = iauthorization "@" ipath-rel
+ipath-rel           = isegment-rel "/" ipath-rootless
+iauthorization      = [ iparam *( ";" iparam ) ]
+iparam              = bearer-token-iparam / token-format-param / y-cert-param
+bearer-token-iparam = "bt=" itoken
+token               = *( iunreserved / pct-encoded / sub-delims )
 	</artwork></figure></t>
-	<t>The definitions of the following rules are adopted from the generic syntax of URI:</t>
+	<t>
+	  The definitions of the following rules are adopted from the generic syntax of URIs and
+	  IRIs:
+	</t>
 	<t><figure><artwork>
-host          = &lt;host, see [RFC3986], Section 3.2.2>
-port          = &lt;port, see [RFC3986], Section 3.2.3>
-path-abempty  = &lt;path-abempty, see [RFC3986], Section 3.3>
-path-rootless = &lt;path-rootless, see [RFC3986], Section 3.3>
-unreserved    = &lt;unreserved, see [RFC3986], Section 2.3>
-pct-encoded   = &lt;pct-encoded, see [RFC3986], Section 2.1>
-sub-delims    = &lt;sub-delims, see [RFC3986], Section 2.2>
-query         = &lt;query, see [RFC3986], Section 3.4>
-fragment      = &lt;fragment, see [RFC3986], Section 3.5>
+host           = &lt;host, see [RFC3986], Section 3.2.2>
+port           = &lt;port, see [RFC3986], Section 3.2.3>
+path-abempty   = &lt;path-abempty, see [RFC3986], Section 3.3>
+path-rootless  = &lt;path-rootless, see [RFC3986], Section 3.3>
+unreserved     = &lt;unreserved, see [RFC3986], Section 2.3>
+pct-encoded    = &lt;pct-encoded, see [RFC3986], Section 2.1>
+sub-delims     = &lt;sub-delims, see [RFC3986], Section 2.2>
+query          = &lt;query, see [RFC3986], Section 3.4>
+fragment       = &lt;fragment, see [RFC3986], Section 3.5>
+
+ihost          = &lt;ihost, see [RFC3987], Section 2.2>
+iport          = &lt;iport, see [RFC3987], Section 2.2>
+ipath-abempty  = &lt;ipath-abempty, see [RFC3987], Section 2.2>
+ipath-rootless = &lt;ipath-rootless, see [RFC3987], Section 2.2>
+iunreserved    = &lt;iunreserved, see [RFC3987], Section 2.2>
+iquery         = &lt;iquery, see [RFC3987], Section 2.2>
+ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	</artwork></figure></t>
 	<t>
 	  If the capability-URI has an <tt>absolute-cap-path</tt> where the <tt>host</tt> component
@@ -956,6 +991,7 @@ fragment      = &lt;fragment, see [RFC3986], Section 3.5>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml-rfcsubseries/reference.BCP.14.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml-rfcsubseries/reference.BCP.35.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.3986.xml"/>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.3987.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.4648.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.5234.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.6234.xml"/>
