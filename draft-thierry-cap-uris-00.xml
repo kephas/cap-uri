@@ -548,7 +548,7 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	</t>
       </section>
 
-      <section title="Capabilities must be unforgeable">
+      <section anchor="unforgeable" title="Capabilities must be unforgeable">
 	<t>
 	  For capabilities to enforce their security model, an attacker must not be able to create a
 	  capability not explicitly given to them.
@@ -571,8 +571,10 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	</t>
 	<list style="symbols">
 	  <t>
-	    A number generated within a wide enough range by a cryptographically secure PRNG
-	    (usually encoded in base32 or base64, or as a series of human words).
+	    A number generated within a wide enough range by a cryptographically secure PRNG,
+	    sometimes called a Swiss number (in reference to Swiss numbered bank accounts). A Swiss
+	    number is usually encoded in base32 or base64. (see <xref target="oob"/> for the use of
+	    different encodings)
 	  </t>
 	  <t>
 	    The permissions as data, protected with cryptography: encrypted such that only the
@@ -910,6 +912,45 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	  systems.
 	</t>
       </section>
+
+      <section anchor="oob" title="Out-of-band communication">
+	<t>
+	  Transcription is an important design goal of URIs (see <xref target="RFC3986"/>, section
+	  1.2.2). Capability-URIs are designed to retain that ability, hence having the embedded URI
+	  or IRI unchanged (and not needing to percent-encode any part of it).
+	</t>
+	<t>
+	  Capability-URIs and web-caps can be designed to facilitate two out-of-band communications:
+	  written transcription and dictation, but there is a trade-off between this facilitation
+	  and safety.
+	</t>
+	<t>
+	  When the authorization data is a bearer token, it can be encoded as a series of words like
+	  an <xref target="xkcd" format="none">XCKD password</xref>. Some algorithms of this kind
+	  use a word list optimized for memorization of the phrase, or designed so that no two
+	  entries of the word list are likely to be mixed when reading, writing or saying them out
+	  loud, making manual transcription or dictation of a capability-URI both easy and reliable
+	  (other examples include the PGP word list or <xref target="RFC1751"/>).
+	</t>
+	<t>
+	  Some word lists are localized, like in <xref target="bip39" format="none">BIP39</xref>,
+	  and those can be used in capability-URIs that are IRIs.
+	</t>
+	<t>
+	  Other algorithms don't use a word list but encode sequences of bits as syllables, usually
+	  with an emphasis on ensuring unambiguous pronounciation (examples include <xref
+	  target="proquints" format="none">proquints</xref> and <xref target="singsong"
+	  format="none">Sing-song</xref>).
+	</t>
+	<t>
+	  The trade-off comes from the fact that manually writing or saying aloud a very long list
+	  of words or syllables can be daunting and error-prone. When generating and encoding a
+	  Swiss number (see <xref target="unforgeable"/>), an application MAY choose to reduce the
+	  size, making the resulting token easier to write and say, but also more vulnerable to
+	  several attacks. Such capability-URIs or web-caps SHOULD have an appropriately short time
+	  of use and/or be usable only once.
+	</t>
+      </section>
     </section>
 
     <section title="IANA Considerations">
@@ -970,10 +1011,7 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	  <t>
 	    When embedding a URI with query parameters and/or a fragment, it avoids the need to
 	    escape them, which makes such URIs easier to transcribe, which is an important design
-	    goal of URIs (see <xref target="RFC3986"/>, section 1.2.2). When the authorization data
-	    is a bearer token that is series of words like an <xref target="xkcd" format="none">XCKD
-	    password</xref>, this can make manual transcription of a capability-URI both easy and
-	    reliable.
+	    goal of URIs (see <xref target="oob">out-of-band communication</xref>).
 	  </t>
 	  <t>
 	    When using absolute capability-URIs, the sensitive information is in a part of the URI
@@ -1004,6 +1042,7 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
     </references>
 
     <references title="Informative references">
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.1751.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.6071.xml"/>
       
       <reference anchor="aclsdont"
@@ -1176,6 +1215,34 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	  <author fullname="Markus Lanthaler"/>
 	  <author fullname="Pierre-Antoine Champin"/>
 	  <author fullname="Niklas Lindström"/>
+	</front>
+      </reference>
+
+      <reference anchor="bip39"
+		 target="https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki">
+	<front>
+	  <title>Mnemonic code for generating deterministic keys</title>
+	  <author fullname="Marek Palatinus"/>
+	  <author fullname="Pavol Rusnak"/>
+	  <author fullname="Aaron Voisine"/>
+	  <author fullname="Sean Bowe"/>
+	</front>
+      </reference>
+
+      <reference anchor="proquints"
+		 target="https://arxiv.org/abs/0901.4016v2">
+	<front>
+	  <title>A Proposal for Proquints: Identifiers that are Readable, Spellable, and
+	  Pronounceable</title>
+	  <author fullname="Daniel Shawcross Wilkerson"/>
+	</front>
+      </reference>
+
+      <reference anchor="singsong"
+		 target="https://blog.vrypan.net/2026/08/19/260819-sing-song/">
+	<front>
+	  <title>Sing-song: a speakable encoding for long numbers and keys</title>
+	  <author fullname="Panagiotis Vryonis"/>
 	</front>
       </reference>
 
