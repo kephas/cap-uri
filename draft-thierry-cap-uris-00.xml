@@ -460,7 +460,7 @@ fragment      = &lt;fragment, see [RFC3986], Section 3.5>
     </section>
 
     <section title="Security Considerations" anchor="sec">
-      <section title="Capability-URIs are credentials">
+      <section anchor="credentials" title="Capability-URIs are credentials">
 	<t>
 	  While the intent of this specification is for the most sensitive part of a capability-URI
 	  to be the <tt>userinfo</tt> component of the generic URI syntax, any capability-URI MUST
@@ -944,7 +944,8 @@ fragment      = &lt;fragment, see [RFC3986], Section 3.5>
 	    When using absolute capability-URIs, the sensitive information is in a part of the URI
 	    that the generic syntax of URIs already treats as sensitive, which makes it more likely
 	    that even software that doesn't recognizes these new URI schemes would handle the
-	    sensitive part accordingly.
+	    sensitive part accordingly (but an application SHOULD NOT rely on that, see <xref
+	    target="credentials"/>).
 	  </t>
 	</list>
     </section>
