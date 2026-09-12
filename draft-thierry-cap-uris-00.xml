@@ -340,7 +340,15 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	    another source than the <tt>bearer-token-param</tt> component. Another parameter MAY add
 	    an <tt>Authorization</tt> header, including one using the <tt>Bearer</tt> authorization
 	    scheme.
-	  </t>	 
+	  </t>
+	  <t>
+	    Examples:
+	    <list style="symbols">
+	      <t><tt>cap-https://<strong>bt=7w66swRJlKme6P3mXY3qww</strong>@foo.io</tt></t>
+	      <t><tt>cap-https://<strong>bt=disallow-hacksaw-repaint-unguarded</strong>@bar.app/welcome</tt></t>
+	      <t><tt>cap-wss://<strong>bt=mugol-majup-mupul-tizaj</strong>@baz.net/updates</tt></t>
+	    </list>
+	  </t>
 	</section>
 
 	<section anchor="token-format" title="Token format">
@@ -358,6 +366,12 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	      <tr><td><tt>bisc</tt></td><td>Biscut (see <xref target="biscuit"/>)</td></tr>
 	    </tbody>
 	  </table>
+	  <t>
+	    Example:
+	    <list style="symbols">
+	      <t><tt>cap-https://bt=EokBCh8KBmFjdGlvbhgDIggKBggCEgIQeyIJCgcIgAgSAhgAEiQIABIgncUlEtlWvSDNfM3zZF1i7uA0FipKD48IAKga_AlY3E0aQHJGTX-BrG0UwWHFFT231A0JEBtMWVBgKS5pUdMsISTjRH9DKY9PcFhQ2TqczdhGar8D6NCiZIoDeQvrZtkHJgwiIgog4qv2B3AC4VhoLybiDGxobq-POPtW_JxhRlRLjDJY7DM=;<strong>tf=bisc</strong>@foo.io</tt></t>
+	    </list>
+	  </t>
 	</section>
 
 	<section title="Y-property certificate">
@@ -388,9 +402,15 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	  </table>
 	  <t>
 	    This parameter MAY be used without any other, to get the benefits of the Y-property even
-	    in a URI that doesn't combine designation and authority:
+	    in a URI that doesn't combine designation and authority.
 	  </t>
-	  <t><figure><artwork>cap-https://yc=sha256:OHYQO7NTO76XXDLIHAG2M35GQI4KGA5SSEN4W5YLHMVEEZUTZ6CA@example.com/public/doc</artwork></figure></t>
+	  <t>
+	    Examples:
+	    <list style="symbols">
+	      <t><tt>cap-https://<strong>yc=sha256:OHYQO7NTO76XXDLIHAG2M35GQI4KGA5SSEN4W5YLHMVEEZUTZ6CA</strong>@foo.io/public/doc</tt></t>
+	      <t><tt>cap-https://<strong>yc=sha256:HBRWGMZTG4ZDIN3DHE3TQYLEMQYTOODCGZRWGZDGMIYDAMJZMYFA</strong>;bt=NvjXBbwz6YlkI-nYIlhH5w@bar.app/welcome</tt></t>
+	    </list>
+	  </t>
 	  <t>
 	    base32 is used because it is more resilient to transcription, leaving few possible
 	    ambiguities between the characters of the alphabet. To account for the possibility of
@@ -491,6 +511,13 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	Because the fragment of a web-cap can be reliably identified as a capability-URI, a
 	capability-URI-aware agent given a web-cap SHOULD resolve the capability-URI directly and
 	request only that URI.
+      </t>
+      <t>
+	Examples:
+	<list style="symbols">
+	  <t><tt>https://foo.io/trmp1#cap-https://ArB6Rj01ZS1_aN9rQjXT9Q@/obj</tt></t>
+	  <t><tt>https://bar.app/webcap#cap-https://x8vSlccEDXcxv-7v7uXKog@/welcome</tt></t>
+	</list>
       </t>
     </section>
 
