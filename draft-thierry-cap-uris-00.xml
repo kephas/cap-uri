@@ -645,7 +645,7 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	</section>
       </section>
 
-      <section title="POLA">
+      <section anchor="pola" title="POLA">
 	<t>
 	  The Principle of Least Authority says that every part of a system should only get the
 	  least amount of authority needed to operate correctly, and no amount more. While widely
@@ -978,6 +978,57 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	  of use and/or be usable only once.
 	</t>
       </section>
+
+      <section title="Protection against CSRF">
+	<t>
+	  The use of capability-URIS according to <xref target="pola">POLA</xref> is resistant to
+	  CSRF attacks because an attacker cannot forge a request that the targeted user is
+	  authorized to make but the attacker isn't. By definition, when you combine authority with
+	  designation, noone can request what they are not authorized to do.
+	</t>
+	<t>
+	  Of course, like any security framework, the design of an application can go against its
+	  principles and be unsafe despite the framework. If a service A holds a capabiliy-URI to
+	  service B with a broad authority, where part of the embedded URI is a guessable resource
+	  name, and service A uses resource names from its client requests, then service A has
+	  succesfully circumvented POLA and is vulnerable to confused deputy attacks (of which CSRF
+	  is an instance), despite the use of capabilities.
+	</t>
+	<t>
+	  An example of such a bad design would be (using URI templates, see <xref
+	  target="RFC6570"/>):
+	  <list style="symbols">
+	    <t>
+	      Service B is accessed by Service A through
+	      <tt>cap-https://K_qCxe8msbJGU4kkIIbSpA@quux.org/serviceB{?resource}</tt>
+	    </t>
+	    <t>
+	      Service A is accessed by its clients through
+	      <tt>https://quux.org/serviceA{?resource}</tt>
+	    </t>
+	  </list>
+	</t>
+      </section>
+
+      <section title="Protection against XSS">
+	<t>
+	  Most previous uses of bearer tokens that protect against CSRF are vulnerable to XSS
+	  because some tokens with broad authority are stored in a global mutable store where
+	  XSS-injected malicious code can trivially read them (like the <tt>localStorage</tt> of a
+	  Web browser).
+	</t>
+	<t>
+	  But with the combined use of REST and capability-URIs, client-side code can use
+	  capability-URIs in such a way that they are never stored except in the local variables of
+	  the functions using them, where XSS-injected malicious code cannot read them without the
+	  support of attacks like Meltdown or Spectre.
+	</t>
+	<t>
+	  When using capability-URIs in a browser's address bar, either with a browser capable of
+	  using capability-URI directly, or with web-caps, a Web application SHOULD redact the
+	  address bar as soon as possible, as XSS-injected malicious code can trivially read it.
+	</t>
+      </section>
     </section>
 
     <section title="IANA Considerations">
@@ -1071,6 +1122,7 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
     <references title="Informative references">
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.1751.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.6071.xml"/>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.6570.xml"/>
       
       <reference anchor="aclsdont"
 		 target="https://papers.agoric.com/papers/acls-dont/abstract/">
