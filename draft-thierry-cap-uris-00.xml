@@ -380,11 +380,12 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	  </t>
 	  <t>
 	    When the <tt>y-cert-param</tt> component is present, the client MUST check during TLS
-	    handshake that one certificate in the certificate chain of the server, hashed with the
-	    algorithm <tt>y-cert-alg</tt> and encoded in base32 (see <xref target="RFC4648"/>,
-	    section 6) corresponds to <tt>y-cert-hash</tt>, or abort the TLS handshake with a
-	    <tt>bad_certificate</tt> alert (see <xref target="RFC9846"/>, section 6.2). As the size
-	    of the hash is known, the base32 encoding MUST NOT contain padding.
+	    handshake that in one X.509 certificate in the certificate chain of the server, the DER
+	    encoding of the <tt>SubjectPublicKeyInfo</tt> field (see <xref target="RFC3279"/>),
+	    hashed with the algorithm <tt>y-cert-alg</tt> and encoded in base32 (see <xref
+	    target="RFC4648"/>, section 6) corresponds to <tt>y-cert-hash</tt>, or abort the TLS
+	    handshake with a <tt>bad_certificate</tt> alert (see <xref target="RFC9846"/>, section
+	    6.2). As the size of the hash is known, the base32 encoding MUST NOT contain padding.
 	  </t>
 	  <t>
 	    This parameter MUST NOT be present in a <tt>cap-http</tt> or <tt>cap-ws</tt> URI, where
@@ -1106,6 +1107,7 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
     <references title="Normative References">
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml-rfcsubseries/reference.BCP.14.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml-rfcsubseries/reference.BCP.35.xml"/>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.3279.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.3986.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.3987.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.4648.xml"/>
