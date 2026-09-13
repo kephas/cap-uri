@@ -52,13 +52,13 @@
 	  one security flaw vastly more damaging.
 	</t>
 	<t>
-	  The other paradigm, capability-based security, combines designation and permission, making
+	  The other paradigm, capability-based security, combines designation and authority, making
 	  it possible to prevent confused deputy attacks and create new patterns of access control,
 	  including composable security policies and safe delegation mechanisms. (see <xref
 	  target="capmyths" format="title"/>)
 	</t>
 	<t>
-	  HTTP/S URIs could be used as capabilities, but as HTTP/S URIs are not treated as sensitive
+	  HTTP URIs could be used as capabilities, but as HTTP URIs are not treated as sensitive
 	  data by most systems, except for their authorization part (but the classical format
 	  <tt>login:password</tt> has been deprecated since, see <xref target="RFC3986"/>, section
 	  3.2.1), it opens up the possibility that capabilities would get leaked in various
@@ -85,7 +85,7 @@
 	  URI.
 	</blockquote>
 	<t>
-	  When permissions are separated from designation, sharing a link is often not enough. And
+	  When authority is separated from designation, sharing a link is often not enough. And
 	  several platforms only let their users share content among themselves. When the only tool
 	  of access control is user identity, it is logical that you can only share with another
 	  user. But fined grained capabilities make it possible again to share "an interesting part
@@ -102,15 +102,15 @@
 	<t>
 	  But if a REST server uses capability-URIs in the state transitions, the client knows with
 	  certainy which credentials to use for each request, and each capability-URI can hold the
-	  bare minimum of permissions to trigger just that transition (see <xref
+	  bare minimum of authority needed to trigger just that transition (see <xref
 	  target="attenuation">Attenuation</xref>).
 	</t>
 	<t>
 	  Capability-URIS also give the server more control over the trade-off between safety and
 	  latency: when the client should be able to trigger a state transition often and/or over
 	  some period of time, the server can embed a long-lived authorization in that state
-	  transition with only the permissions for that transition. It makes the capability easier
-	  to reuse by a malicious agent, but with a very limited attack surface. On the other hand,
+	  transition with only the authority for that transition. It makes the capability easier to
+	  reuse by a malicious agent, but with a very limited attack surface. On the other hand,
 	  whenever some state transitions require that the client be very strictly verified to be
 	  the right one, capabilities could have a very short TTL and the client would need to renew
 	  them by requesting again the resource where they appeared.
@@ -128,12 +128,14 @@
 	<t>This specification uses the Augmented Backus-Naur Form (ABNF) notation of <xref
 	target="RFC5234"/>.</t>
       </section>
+
       <section title="Prior work">
 	<t>
 	  The first use of URIs as capabilities was in the Waterken project, with <xref
-	  target="web-key">web-keys</xref>, which placed an unguessable token in the fragment, and
-	  <xref target="yurl">YURLs</xref>, with the <tt>httpy</tt> URI scheme, which introduced the
-	  <xref target="y-property">Y-property</xref>.
+	  target="web-key" format="none">web-keys</xref>, which placed an unguessable token in the
+	  fragment of an <tt>https</tt> URI, and <xref target="yurl" format="none">YURLs</xref>,
+	  with the <tt>httpy</tt> URI scheme, which introduced the <xref
+	  target="y-property">Y-property</xref>.
 	</t>
 	<t>
 	  Introducing a new URI scheme proved to be difficult with Web browsers at the time, so the
@@ -159,7 +161,7 @@
 	  When a capability-URI-aware HTTP agent (like a browser or library) is asked to make an
 	  HTTP request to a resource identified by a <tt>cap-http</tt> URI (with parameters like the
 	  method or the request body), it extracts from that capability-URI the authorization data
-	  and the HTTP URI, and prepare the HTTP request with the given parameters but with the
+	  and the HTTP URI, and prepares the HTTP request with the given parameters but with the
 	  authorization headers described by the capability-URI. In the following example, it puts
 	  the bearer token in the <tt>Authorization</tt> header with the <tt>Bearer</tt>
 	  authorization scheme (<xref target="RFC6750"/>):
@@ -280,7 +282,7 @@ ipath-rel           = isegment-rel "/" ipath-rootless
 iauthorization      = [ iparam *( ";" iparam ) ]
 iparam              = bearer-token-iparam / token-format-param / y-cert-param
 bearer-token-iparam = "bt=" itoken
-token               = *( iunreserved / pct-encoded / sub-delims )
+itoken              = *( iunreserved / pct-encoded / sub-delims )
 	</artwork></figure></t>
 	<t>
 	  The definitions of the following rules are adopted from the generic syntax of URIs and
@@ -307,39 +309,42 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	</artwork></figure></t>
 	<t>
 	  If the capability-URI has an <tt>absolute-cap-path</tt> where the <tt>host</tt> component
-	  is empty, the URI is relative and is valid only if there is a known base URI (see <xref
+	  is empty or an <tt>absolute-cap-ipath</tt> where the <tt>ihost</tt> component is empty,
+	  the URI is relative and is valid only if there is a known base URI (see <xref
 	  target="RFC3986"/>, section 5.1). Resolving this relative capability-URI consists in
 	  creating a target capability-URI where every component is taken from the relative
 	  capability-URI, except the host, taken from the base URI.
 	</t>
 	<t>
-	  If the capability-URI has a <tt>relative-cap-path</tt>, resolving it consists in creating
-	  a target capability-URI where every component is taken from the URI produced by resolving
-	  the relative reference present in the <tt>path-rel</tt> component, except the
-	  <tt>userinfo</tt> component, taken from the <tt>authorization</tt> component of the
-	  relative capability-URI.
+	  If the capability-URI has a <tt>relative-cap-path</tt> or <tt>relative-cap-ipath</tt>,
+	  resolving it consists in creating a target capability-URI where every component is taken
+	  from the URI produced by resolving the relative reference present in the <tt>path-rel</tt>
+	  or <tt>path-irel</tt> component, except the <tt>authorization</tt> or
+	  <tt>iauthorization</tt> component, taken from the <tt>authorization</tt> or
+	  <tt>iauthorization</tt> component of the relative capability-URI.
 	</t>
       </section>
 
       <section title="Parameters">
 	<t>
-	  The <tt>authorization</tt> component of the capability-URI is made of a sequence of
-	  parameters. This specification defines two such parameters, but a future version can
-	  define more parameters, to support different authorization mechanisms.
+	  The <tt>authorization</tt> or <tt>iauthorization</tt> component of the capability-URI is
+	  made of a sequence of parameters. This specification defines three such parameters, but a
+	  future version can define more parameters, to support different authorization mechanisms.
 	</t>
 
 	<section title="Bearer token">
 	  <t>
-	    When the <tt>bearer-token-param</tt> component is present, the request MUST contain an
-	    <tt>Authorization</tt> header containing the <tt>token</tt> component as a bearer token
-	    used with the <tt>Bearer</tt> authorization scheme (<xref target="RFC6750"/>).
+	    When the <tt>bearer-token-param</tt> or <tt>bearer-token-iparam</tt> component is
+	    present, the request MUST contain an <tt>Authorization</tt> header containing the
+	    <tt>token</tt> or <tt>itoken</tt> component as a bearer token used with the
+	    <tt>Bearer</tt> authorization scheme (<xref target="RFC6750"/>).
 	  </t>	 
 	  <t>
-	    When the <tt>bearer-token-param</tt> component is absent, the request MUST NOT contain
-	    such an <tt>Authorization</tt> header with an empty bearer token or one created from
-	    another source than the <tt>bearer-token-param</tt> component. Another parameter MAY add
-	    an <tt>Authorization</tt> header, including one using the <tt>Bearer</tt> authorization
-	    scheme.
+	    When the <tt>bearer-token-param</tt> or <tt>bearer-token-iparam</tt> component is
+	    absent, the request MUST NOT contain such an <tt>Authorization</tt> header with an empty
+	    bearer token or one created from another source than the capability-URI's
+	    parameters. Another parameter MAY add an <tt>Authorization</tt> header, including one
+	    using the <tt>Bearer</tt> authorization scheme.
 	  </t>
 	  <t>
 	    Examples:
@@ -347,6 +352,7 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	      <t><tt>cap-https://<strong>bt=7w66swRJlKme6P3mXY3qww</strong>@foo.io</tt></t>
 	      <t><tt>cap-https://<strong>bt=disallow-hacksaw-repaint-unguarded</strong>@bar.app/welcome</tt></t>
 	      <t><tt>cap-wss://<strong>bt=mugol-majup-mupul-tizaj</strong>@baz.net/updates</tt></t>
+	      <t><tt>cap-https://<strong>bt=衛停烈央察燒迅境若印洲刻</strong>@quux.com/login</tt></t>
 	    </list>
 	  </t>
 	</section>
@@ -432,9 +438,9 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 
     <section anchor="web-cap" title="Web-caps">
       <t>
-	While it can be straightforward to update frontend and backend code to be able to handle new
-	URI schemes, their adoption by browsers can take time and backward compatibility with legacy
-	browsers can be paramount.
+	While it can somtimes be straightforward to update frontend and backend code to be able to
+	handle new URI schemes, their adoption by browsers is likely to take time. Also, backward
+	compatibility with legacy browsers can be paramount.
       </t>
       <t>
 	This specification describes a way to embed a capability in a legacy <tt>https</tt> URI, for
@@ -443,9 +449,9 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
       </t>
       <t>
 	A web-cap is a <tt>https</tt> URI where the fragment is a <tt>cap-https</tt> URI. This
-	capability-URI MUST NOT contain a <tt>host</tt> component, it MUST be a relative
-	capability-URI with a <tt>cap-https</tt> scheme. The <tt>https</tt> URI without its fragment
-	is called the trampoline URI, and it is the base URI for the capability-URI.
+	capability-URI MUST NOT contain a <tt>host</tt> or <tt>ihost</tt> component, it MUST be a
+	relative capability-URI with a <tt>cap-https</tt> scheme. The <tt>https</tt> URI without its
+	fragment is called the trampoline URI, and it is the base URI for the capability-URI.
       </t>
       <t>
 	When the browser makes a request for the trampoline URI, the representation in the server's
@@ -460,7 +466,8 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
       <t>
 	Once loaded, a trampoline document MUST attempt to modify the browser's address bar to
 	remove the fragment as soon as possible, to limit the possibility of an attacker to observe
-	the capability-URI on the user's screen.
+	the capability-URI on the user's screen or with malicious client-side code (through the
+	<tt>Location</tt> interface of the browser).
       </t>
       <t>
 	A trampoline document is a critical piece of the Trusted Computing Base (TCB) for the system
@@ -992,8 +999,8 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	  principles and be unsafe despite the framework. If a service A holds a capabiliy-URI to
 	  service B with a broad authority, where part of the embedded URI is a guessable resource
 	  name, and service A uses resource names from its client requests, then service A has
-	  succesfully circumvented POLA and is vulnerable to confused deputy attacks (of which CSRF
-	  is an instance), despite the use of capabilities.
+	  succesfully circumvented POLA and made itself vulnerable to confused deputy attacks,
+	  despite the use of capabilities.
 	</t>
 	<t>
 	  An example of such a bad design would be (using URI templates, see <xref
