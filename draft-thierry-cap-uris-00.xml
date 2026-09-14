@@ -555,6 +555,15 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	  target="revocation">revocable</xref> capabilities with short lifetimes constitutes a
 	  second line of defence against leaks.
 	</t>
+	<t>
+	  As with other credentials, in a web service exposing capability-URIs, their sensitive
+	  components like the bearer token SHOULD NOT be stored unprotected. For example, as with
+	  passwords, tokens can be stored hashed, which enables the service to find the authority
+	  associated with an incoming request containing a valid token, but if the stored hashes get
+	  leaked, they cannot be used as-is to make authenticated requests (and if they have been
+	  properly generated, a brute-force attack has to search through a bigger and more uniform
+	  space than with passwords).
+	</t>
       </section>
 
       <section anchor="notls" title="Using bearer tokens without TLS">
@@ -695,8 +704,8 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	    which makes it easier to start a service with no authority, by giving it no credentials
 	    in its configuration. Again, the exception to that rule would be its "own" authority,
 	    like some service exposing a cache that has the credentials to connect to a database in
-	    its configuration. <xref target="bootstrap" format="title"/> shows how this works in
-	    practice in a full scenario starting with the first deployment of a web service.
+	    its configuration. <xref target="bootstrap"/> shows how this works in practice in a full
+	    scenario starting with the first deployment of a web service.
 	  </t>
 	</t>
       </section>
@@ -734,9 +743,9 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	    the caretaker should stop working, it doesn't need the authority anymore. So it
 	    shouldn't keep it. The trick is to look for other cases where a decision could be
 	    transformed into a dynamic graph of capabilities that embodies the policy behind the
-	    decision. Note the the invariant that the code should not receive or shouldn't keep
-	    excess authority it a kind a invariant that prefectly lend itself to Edsger Dijkstra's
-	    method of "correct by construction".
+	    decision. For a concrete method to achieve this kind of design, the invariant that the
+	    code shouldn't receive or keep excess authority is a kind a invariant that perfectly
+	    lends itself to Edsger Dijkstra's method of "correct by construction".
 	  </t>
 	  <t>
 	    <xref target="weather"/> shows an example of creating, sending, using and revoking a
