@@ -249,7 +249,7 @@ bar
 	  </list>
 	</t>
 	<t><figure><artwork>
-cap-http-uri        ="cap-http" ":" cap-path [ "?" query ] [ "#" fragment ]
+cap-http-uri        = "cap-http" ":" cap-path [ "?" query ] [ "#" fragment ]
 cap-https-uri       = "cap-https" ":" cap-path [ "?" query ] [ "#" fragment ]
 cap-ws-uri          = "cap-ws" ":" cap-path [ "?" query ]
 cap-wss-uri         = "cap-wss" ":" cap-path [ "?" query ]
@@ -258,13 +258,15 @@ absolute-cap-path   = "//" authorization "@" host [ ":" port ] path-abempty
 relative-cap-path   = authorization "@" path-rel
 path-rel            = segment-rel "/" path-rootless
 authorization       = [ param *( ";" param ) ]
-param               = bearer-token-param / token-format-param / y-cert-param
+param               = 1*param-char
+param-char          = unreserved / pct-encoded / param-delims
+param-delims        = "!" / "$" / "&amp;" / "'" / "(" / ")" / "*" / "+" / "," / "=" / ":"
 bearer-token-param  = "bt=" token
-token               = *( unreserved / pct-encoded / sub-delims )
-token-format-param  = "tf=" token-format
-token-format        = "bisc"
+token               = 1*param-char
+token-format-param  = [ "*" ] "tf=" token-format
+token-format        = 1*param-char
 y-cert-param        = "yc=" y-cert-alg ":" y-cert-hash
-y-cert-alg          = "sha256"
+y-cert-alg          = 1*unreserved
 y-cert-hash         = base32
 segment-rel         = "." / ".."
 base32              =  "A" / "B" / "C" / "D" / "E" / "F" / "G" / "H" / "I" / "J" / "K" 
@@ -280,10 +282,16 @@ absolute-cap-ipath  = "//" iauthorization "@" ihost [ ":" port ] ipath-abempty
 relative-cap-ipath  = iauthorization "@" ipath-rel
 ipath-rel           = isegment-rel "/" ipath-rootless
 iauthorization      = [ iparam *( ";" iparam ) ]
-iparam              = bearer-token-iparam / token-format-param / y-cert-param
+iparam              = 1*param-ichar
+param-ichar         = iunreserved / pct-encoded / param-delims
 bearer-token-iparam = "bt=" itoken
-itoken              = *( iunreserved / pct-encoded / sub-delims )
+itoken              = 1*param-ichar
 	</artwork></figure></t>
+	<t>
+	  Note that the rule <tt>param-delims</tt> corresponds to the rule <tt>sub-delims</tt> (see
+	  <xref target="RFC3986"/>, section 2.2), minus the <tt>";"</tt> alternative, plus the
+	  <tt>":"</tt> alternative.
+	</t>
 	<t>
 	  The definitions of the following rules are adopted from the generic syntax of URIs and
 	  IRIs:
@@ -295,7 +303,6 @@ path-abempty   = &lt;path-abempty, see [RFC3986], Section 3.3>
 path-rootless  = &lt;path-rootless, see [RFC3986], Section 3.3>
 unreserved     = &lt;unreserved, see [RFC3986], Section 2.3>
 pct-encoded    = &lt;pct-encoded, see [RFC3986], Section 2.1>
-sub-delims     = &lt;sub-delims, see [RFC3986], Section 2.2>
 query          = &lt;query, see [RFC3986], Section 3.4>
 fragment       = &lt;fragment, see [RFC3986], Section 3.5>
 
@@ -329,15 +336,23 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	<t>
 	  The <tt>authorization</tt> or <tt>iauthorization</tt> component of the capability-URI is
 	  made of a sequence of parameters. This specification defines three such parameters, but a
-	  future version can define more parameters, to support different authorization mechanisms.
+	  future version can define more parameters, to support different authorization mechanisms,
+	  or deprecate exisiting ones.
+	</t>
+	<t>
+	  An application that doesn't implement some parameter MUST NOT make a request for a
+	  capability-URI containing that parameter, except if that parameter's handling is
+	  optional. If a parameter's handling is optional, it MUST begin with the character
+	  <tt>*</tt>. If a parameter's handling is not optional, it MUST NOT begin with the
+	  character <tt>*</tt>.
 	</t>
 
 	<section title="Bearer token">
 	  <t>
-	    When the <tt>bearer-token-param</tt> or <tt>bearer-token-iparam</tt> component is
-	    present, the request MUST contain an <tt>Authorization</tt> header containing the
-	    <tt>token</tt> or <tt>itoken</tt> component as a bearer token used with the
-	    <tt>Bearer</tt> authorization scheme (<xref target="RFC6750"/>).
+	    When the <tt>bearer-token-param</tt> (in a URI) or <tt>bearer-token-iparam</tt> (in an
+	    IRI) component is present, the request MUST contain an <tt>Authorization</tt> header
+	    containing the <tt>token</tt> or <tt>itoken</tt> component as a bearer token used with
+	    the <tt>Bearer</tt> authorization scheme (<xref target="RFC6750"/>).
 	  </t>	 
 	  <t>
 	    When the <tt>bearer-token-param</tt> or <tt>bearer-token-iparam</tt> component is
@@ -363,8 +378,8 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	    the bearer token.
 	  </t>
 	  <t>
-	    This specification only defines one value for <tt>token-format</tt> but a future version
-	    can define more values or deprecate exisiting ones:
+	    This specification defines one value for <tt>token-format</tt> but a future version can
+	    define more values or deprecate exisiting ones:
 	  </t>
 	  <table>
 	    <thead><tr><th><tt>token-format</tt></th><th>Token format</th></tr></thead>
@@ -375,8 +390,16 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	  <t>
 	    Example:
 	    <list style="symbols">
-	      <t><tt>cap-https://bt=EokBCh8KBmFjdGlvbhgDIggKBggCEgIQeyIJCgcIgAgSAhgAEiQIABIgncUlEtlWvSDNfM3zZF1i7uA0FipKD48IAKga_AlY3E0aQHJGTX-BrG0UwWHFFT231A0JEBtMWVBgKS5pUdMsISTjRH9DKY9PcFhQ2TqczdhGar8D6NCiZIoDeQvrZtkHJgwiIgog4qv2B3AC4VhoLybiDGxobq-POPtW_JxhRlRLjDJY7DM=;<strong>tf=bisc</strong>@foo.io</tt></t>
+	      <t><tt>cap-https://bt=EokBCh8KBmFjdGlvbhgDIggKBggCEgIQeyIJCgcIgAgSAhgAEiQIABIgncUlEtlWvSDNfM3zZF1i7uA0FipKD48IAKga_AlY3E0aQHJGTX-BrG0UwWHFFT231A0JEBtMWVBgKS5pUdMsISTjRH9DKY9PcFhQ2TqczdhGar8D6NCiZIoDeQvrZtkHJgwiIgog4qv2B3AC4VhoLybiDGxobq-POPtW_JxhRlRLjDJY7DM=;<strong>*tf=bisc</strong>@foo.io</tt></t>
+	      <t><tt>cap-https://bt=EokBCh8KBmFjdGlvbhgDIggKBggCEgIQeyIJCgcIgAgSAhgAEiQIABIg32JaSzOOkDZeLRbnfN5qRQ0fPmT7fFaVzQ96zVffuzYaQOyfgWJUTAuJtuIgI8Y8ToW7mGPsQztQQ_WWHIzJMH1B6yCtncRiaBtAn9yYRuZ62JFiDYp8RyRmM3PPdETlwAIiIgog25_3GfCiu_5kjg-dEq05B7WY5IcoNFAo8P8s1XHlAIU=;<strong>tf=bisc</strong>@foo.io</tt></t>
 	    </list>
+	  </t>
+	  <t>
+	    This parameter's handling can be optional (if it starts with the <tt>*</tt>
+	    character). An application SHOULD make this parameter's handling mandatory if actions
+	    like <xref target="revocation">revocation</xref> and <xref
+	    target="attenuation">attenuation</xref> of the capability-URI are not possible without
+	    it.
 	  </t>
 	</section>
 
@@ -398,8 +421,8 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	    it wouldn't make sense.
 	  </t>
 	  <t>
-	    This specification only defines one value for <tt>y-cert-alg</tt> but a future version
-	    can define more values or deprecate exisiting ones:	    
+	    This specification defines one value for <tt>y-cert-alg</tt> but a future version can
+	    define more values or deprecate exisiting ones:
 	  </t>
 	  <table>
 	    <thead><tr><th><tt>y-cert-alg</tt></th><th>Hashing algorithm</th></tr></thead>
