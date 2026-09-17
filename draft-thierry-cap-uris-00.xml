@@ -159,18 +159,21 @@
       <section title="Principle of operation">
 	<t>
 	  When a capability-URI-aware HTTP agent (like a browser or library) is asked to make an
-	  HTTP request to a resource identified by a <tt>cap-http</tt> URI (with parameters like the
-	  method or the request body), it extracts from that capability-URI the authorization data
-	  and the HTTP URI, and prepares the HTTP request with the given parameters but with the
-	  authorization headers described by the capability-URI. In the following example, it puts
-	  the bearer token in the <tt>Authorization</tt> header with the <tt>Bearer</tt>
-	  authorization scheme (<xref target="RFC6750"/>):
+	  HTTP request to a resource identified by a capability-URI (with parameters like the method
+	  or the request body), it extracts from that capability-URI the authorization data and the
+	  request target, prepares the HTTP request with the user-given parameters but augments the
+	  connection establishment and the request headers based on the authorization data of the
+	  capability-URI.
+	</t>
+	<t>
+	  In the following example, it puts the bearer token in the <tt>Authorization</tt> header
+	  with the <tt>Bearer</tt> authorization scheme <xref target="RFC6750"/>:
 	</t>
 	<t><figure><artwork>
-http.post("cap-http://bt=AViRTF9ppWiAtdnpVtVHDQ@example.com/foo", body="bar",
+http.post("cap-https://bt=AViRTF9ppWiAtdnpVtVHDQ@example.com/foo", body="bar",
   headers={"Content-Type": "text/plain"})
 	</artwork></figure></t>
-	<t>would produce the following HTTP request:</t>
+	<t>would produce the following HTTP/1.1 <xref target="RFC9112"/> request:</t>
 	<t><figure><artwork>
 POST /foo HTTP/1.1
 Host: example.com
@@ -179,16 +182,32 @@ Authorization: Bearer AViRTF9ppWiAtdnpVtVHDQ
 
 bar
 	</artwork></figure></t>
+	<t>or the following HTTP/2 <xref target="RFC9113"/> or HTTP/3 <xref target="RFC9114"/>
+	request:</t>
+	<t><figure><artwork>
+HEADERS
+  + END_HEADERS
+    :method = POST
+    :scheme = cap-https
+    :authority = example.com
+    :path = /foo
+    content-type = text/plain
+    authorization = Bearer AViRTF9ppWiAtdnpVtVHDQ
+
+DATA
+  + END_STREAM
+bar
+	</artwork></figure></t>
 	<t>
-	  The URI embedded in an absolute capability-URI is the same URI with only two
-	  transformations:
-	  <list style="symbol">
-	    <t>removal of the authority</t>
-	    <t>replacement of the scheme</t>
-	  </list>
+	  Each URI scheme corresponds to an existing HTTP URI scheme, extended with rich
+	  authorization data. In a target capability-URI, except for the <tt>userinfo</tt> component
+	  which maps to the capability-URI's <tt>authorization</tt> component, every component has
+	  the same syntax and semantics than the corresponding URI scheme (and maps to the same
+	  request components, headers and pseudo-headers).
 	</t>
 	<table>
-	  <thead><tr><th>Capability URI scheme</th><th>Embedded URI scheme</th><th/></tr></thead>
+	  <thead><tr><th>Capability URI scheme</th><th>Corresponding URI
+	  scheme</th><th/></tr></thead>
 	  <tbody>
 	    <tr><td><tt>cap-http</tt></td><td><tt>http</tt> <xref target="RFC9110"/></td><td>(see
 	    <xref target="notls" format="title"/> about the security considerations)</td></tr>
@@ -226,6 +245,10 @@ bar
 	  is a capability-URI, it is valid for capability-URIs to have an empty host, which creates
 	  a URI that is equivalent to a network-path reference, but with the scheme specified:
 	  <tt>cap-https://bt=D-nX3h-tDq_VtaYQKYYlDw@/baz</tt>.
+	</t>
+	<t>
+	  These relative capability-URI, like relative URI references, refer to a target
+	  capability-URI.
 	</t>
       </section>
 
@@ -369,6 +392,12 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	      <t><tt>cap-wss://<strong>bt=mugol-majup-mupul-tizaj</strong>@baz.net/updates</tt></t>
 	      <t><tt>cap-https://<strong>bt=衛停烈央察燒迅境若印洲刻</strong>@quux.com/login</tt></t>
 	    </list>
+	  </t>
+	  <t>
+	    When a capability-IRI contains a bearer token with characters outside US-ASCII, they
+	    SHOULD be encoded as UTF-8 for the HTTP header, as the valid characters for
+	    <tt>itoken</tt> encoded in UTF-8 are also valid for the <tt>field-vchar</tt> rule of
+	    HTTP.
 	  </t>
 	</section>
 
@@ -1157,6 +1186,9 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.8246.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.9110.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.9111.xml"/>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.9112.xml"/>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.9113.xml"/>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.9114.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.9846.xml"/>
     </references>
 
