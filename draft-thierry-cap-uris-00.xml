@@ -616,6 +616,84 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	  properly generated, a brute-force attack has to search through a bigger and more uniform
 	  space than with passwords).
 	</t>
+
+	<section title="Redacted URI scheme">
+	  <t>
+	    When an application redacts a capability-URI, to prevent any consumer of the redacted
+	    URI to confuse it with a valid URI, an application MAY use the <tt>redacted:</tt> URI
+	    scheme. The syntax of the redacted URI is simple: after the scheme goes the redacted URI
+	    reference, unescaped, but with any part deemed sensitive substituted.
+	  </t>
+	  <t>
+	    It is RECOMMENDED to substitute each sensitive portion of the original URI with the
+	    percent-encoded control character "substitute" (<tt>%1A</tt>), as it is highly unlikely
+	    to appear in any unredacted URI. An application SHOULD NOT substitute a sensitive
+	    portion with the same number of substitution characters as the length of the sensitive
+	    portion, but rather with a single reckognizable character or character sequence.
+	  </t>
+	  <t>
+	    An application displaying a redacted URI SHOULD display a substitution character or
+	    character sequence as a block wider than a character.
+	  </t>
+	  <t>
+	    The syntax of redacted URIs and IRIs is the following:
+	  </t>
+	  <t><figure><artwork>
+redacted-uri   = "redacted:" URI-reference
+redacted-iri   = "redacted:" IRI-reference
+
+URI-reference  = &lt;URI-reference, see [RFC3986], Section 4.1>
+IRI-reference  = &lt;IRI-reference, see [RFC3987], Section 2.2>
+	  </artwork></figure></t>
+	  <t>
+	    Examples:
+	  </t>
+	  <table>
+	    <thead><tr><th>Redacted URI</th><th>Possible display</th></tr></thead>
+	    <tbody>
+	      <tr>
+		<td><tt>redacted:cap-https:%1A@foo.io/quux/1234</tt></td>
+		<td><tt>cap-https:████@foo.io/quux/1234</tt></td>
+	      </tr>
+	      <tr>
+		<td><tt>redacted:cap-https:bt=%1A;*tf=bisc@bar.net/?search=%1A</tt></td>
+		<td><tt>cap-https:bt=████;*tf=bisc@bar.net/?search=████</tt></td>
+	      </tr>
+	      <tr>
+		<td><tt>redacted:cap-https:%1A@baz.com/%1A</tt></td>
+		<td><tt>cap-https:████@baz.com/████</tt></td>
+	      </tr>
+	      <tr>
+		<td><tt>redacted:data:,John %1A, born %1A</tt></td>
+		<td><tt>John ████, born ████</tt></td>
+	      </tr>
+	    </tbody>
+	  </table>
+	  <t>
+	    Note that by using <tt>data:</tt> URIs, application can use the <tt>redacted:</tt> URI
+	    scheme to mark non-URI data as redacted.
+	  </t>
+	  <t>
+	    An application providing multiple ways to redact capability-URIs SHOULD provide a
+	    default operation where the whole <tt>authoritzation</tt> component is redacted. When
+	    implementing the handling of capability-URIs with respect to an existing API to handle
+	    generic URIs, this default operation SHOULD be how capability-URIs are rendered as
+	    strings or in serialization, to ensure that code that isn't specifically designed to
+	    handle capability-URIs doesn't leak sensitive information:
+	  </t>
+	  <t><figure><artwork>
+> foo = parse_URI("cap-https://bt=zk3fv2E5KsjyYdT9I0rzPg@example.com/foo/bar?baz=quux")
+> foo.to_string()
+"redacted:cap-https://%1A@example.com/foo/bar?baz=quux"
+
+> {target: foo}.to_json()
+'{"target":"redacted:cap-https://%1A@example.com/foo/bar?baz=quux"}'
+          </artwork></figure></t>
+	  <t>
+	    Beware that this breaks the expectation that string parsing/rendering or
+	    serialization/deserialization are couples of inverse operations.
+	  </t>
+	</section>
       </section>
 
       <section anchor="notls" title="Using bearer tokens without TLS">
@@ -1129,6 +1207,13 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
       <section title="cap-wss">
 	<list style="hanging">
 	  <t hangText="Scheme name"><tt>cap-wss</tt></t>
+	  <t hangText="Status">Provisional</t>
+	  <t hangText="Applications/protocols that use this scheme name">TBD</t>
+	</list>
+      </section>
+      <section title="redacted">
+	<list style="hanging">
+	  <t hangText="Scheme name"><tt>redacted</tt></t>
 	  <t hangText="Status">Provisional</t>
 	  <t hangText="Applications/protocols that use this scheme name">TBD</t>
 	</list>
