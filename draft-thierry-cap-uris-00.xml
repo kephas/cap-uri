@@ -1052,6 +1052,58 @@ IRI-reference  = &lt;IRI-reference, see [RFC3987], Section 2.2>
 	</section>
       </section>
 
+      <section title="Responsibility tracking">
+	<t>
+	  As much as capabilities make it easier and safer to design systems that better prevent
+	  unwanted accesses and are more robust in the face of negligent or malicious behavior, they
+	  also make it possible to track complex chains of responsibility in cases where unwanted
+	  accesses happen.
+	</t>
+	<t>
+	  The difference with ACL security is important. In an ACL system, permissions are usually
+	  granted broadly and often in advance. For example, all members of a lab might get added to
+	  a group that has write access to the files of all active projects of the lab, or maybe to
+	  groups linked to projects they participate in if security is tighter. If Mallet want some
+	  file overwritten without logs pointing to them, they set things up so that Bob will
+	  instruct Alice to write data in the targeted file. When it is later discovered that it
+	  wasn't the right file for what she wrote and she overwrote and lost valuable information,
+	  in the system itself, we may have only limited evidence:
+	  <list style="symbols">
+	    <t>when user X put Alice in the relevant group</t>
+	    <t>when user Y gave that group write permissions on the file</t>
+	    <t>when Alice modified the file</t>
+	  </list>
+	  Users X and Y probably did their changes long before the unwanted access happened and none
+	  of them is Bob or Mallet. Depending on the system, on top of Alice being indirectly duped
+	  to write to some path, another person might have been indirectly duped so that this
+	  unassumng file path is actually a link to something else. The paths could have been
+	  communicated with all kinds of services, or even given by speech or written by hand, so
+	  they may not be anywhere in the security logs. Ultimately, Mallet might not have himself
+	  the authority in the system to write the file, nor Bob. In this scenario, even if
+	  permissions are given narrowly, they would not show any evidence against Mallet.
+	</t>
+	<t>
+	  In a capability system, people cannot be duped to enter a path as the target of a link or
+	  write operation when those require a capability, not a path. This means that Mallet needs
+	  to have access to the targeted file himself. When Alice writes the file, the system can be
+	  designed to log that it's with a capability given by Bob, itself using a capability given
+	  by Mallet.
+	</t>
+
+	<section title="Responsability tracking protocols">
+	  <t>
+	    Capabilities in general and REST share two features: being layered systems and having a
+	    uniform interface. Those make it possible to implement intermediate layers adding a
+	    feature to the overall system that are independent of the service behind
+	    them. Revocation (see <xref target="revocation"/>) may be the simmplest. A
+	    responsibility tracking protocol is another.
+	  </t>
+	  <t>
+	    TODO
+	  </t>
+	</section>
+      </section>
+
       <section anchor="y-property" title="Y-Property">
 	<t>
 	  If Alice has a capability to Bob and Carol, and Alice sends a message to Bob with the
