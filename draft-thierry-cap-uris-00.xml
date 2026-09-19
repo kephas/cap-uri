@@ -1052,6 +1052,77 @@ IRI-reference  = &lt;IRI-reference, see [RFC3987], Section 2.2>
 	</section>
       </section>
 
+      <section title="Responsibility tracking">
+	<t>
+	  As much as capabilities make it easier and safer to design systems that better prevent
+	  unwanted accesses and are more robust in the face of negligent or malicious behavior, they
+	  also make it possible to track complex chains of responsibility in cases where unwanted
+	  accesses happen.
+	</t>
+	<t>
+	  The difference with ACL security is important. In an ACL system, permissions are usually
+	  granted broadly and often in advance. For example, all members of a lab might get added to
+	  a group that has write access to the files of all active projects of the lab, or maybe to
+	  groups linked to projects they participate in if security is tighter. If Mallet want some
+	  file overwritten without logs pointing to them, they set things up so that Bob will
+	  instruct Alice to write data in the targeted file. When it is later discovered that it
+	  wasn't the right file for what she wrote and she overwrote and lost valuable information,
+	  in the system itself, we may have only limited evidence:
+	  <list style="symbols">
+	    <t>when user X put Alice in the relevant group</t>
+	    <t>when user Y gave that group write permissions on the file</t>
+	    <t>when Alice modified the file</t>
+	  </list>
+	  Users X and Y probably did their changes long before the unwanted access happened and none
+	  of them is Bob or Mallet. Depending on the system, on top of Alice being indirectly duped
+	  to write to some path, another person might have been indirectly duped so that this
+	  unassumng file path is actually a link to something else. The paths could have been
+	  communicated with all kinds of services, or even given by speech or written by hand, so
+	  they may not be anywhere in the security logs. Ultimately, Mallet might not have himself
+	  the authority in the system to write the file, nor Bob. In this scenario, even if
+	  permissions are given narrowly, they would not show any evidence against Mallet.
+	</t>
+	<t>
+	  In a capability system, people cannot be duped to enter a path as the target of a link or
+	  write operation when those require a capability, not a path. This means that Mallet needs
+	  to have access to the targeted file himself. When Alice writes the file, the system can be
+	  designed to log that it's with a capability given by Bob, itself using a capability given
+	  by Mallet. This can be done by a responsibility tracking protocol.
+	</t>
+
+	<section title="Responsability tracking protocols">
+	  <t>
+	    Capabilities in general and REST share two features: being layered systems and having a
+	    uniform interface. Those make it possible to implement intermediate layers adding a
+	    feature to the overall system that are independent of the service behind
+	    them. Capability-URIs inherit this from their two roots. Revocation (see <xref
+	    target="revocation"/>) may be the simplest. A responsibility tracking protocol is
+	    another.
+	  </t>
+	  <t>
+	    A class of possible responsability tracking protocols would be those that work on the
+	    same principle as Horton (see <xref target="horton" format="title"/>), a pure
+	    object-capabilities protocol.
+	  </t>
+	  <t>
+	    The principle is that if agent Alice wants to use services owned by agent Bob, each time
+	    Bob sends a capability-URI, Alice will internally create a proxy that wraps the
+	    capability-URI to log some information about the request that was sent and that it was
+	    sent from Alice to Bob. Symmetrically, each capability-URI that Bob sent to Alice was
+	    not directly to the desired service but actually to an internal stub that logs some
+	    information about the request that was received and that it was received from Alice by
+	    Bob. When agent Alice wants to introduce agent Carol to Bob, the protocol must provide a
+	    way for Bob and Carol to guarantee that Alice cannot be a man-in-the-middle, meaning
+	    that Carol's stub for Bob cannot be used by Alice nor that Bob's proxy for Carol cannot
+	    go to Alice.
+	  </t>
+	  <t>
+	    In Horton, this guarantee is provided by capabilities that seal and unseal values. In a
+	    protocol for capability-URIs, this could be done with a cryptographical key exchange.
+	  </t>
+	</section>
+      </section>
+
       <section anchor="y-property" title="Y-Property">
 	<t>
 	  If Alice has a capability to Bob and Carol, and Alice sends a message to Bob with the
@@ -1318,6 +1389,16 @@ IRI-reference  = &lt;IRI-reference, see [RFC3987], Section 2.2>
 	</front>
       </reference>
       
+      <reference anchor="horton"
+		 target="https://www.usenix.org/conference/hotsec-07/delegating-responsibility-digital-systems-hortons-who-done-it">
+	<front>
+	  <title>Delegating Responsibility in Digital Systems: Horton's "Who Done It?"</title>
+	  <author fullname="Mark S. Miller"/>
+	  <author fullname="James E. Donnelley"/>
+	  <author fullname="Alan H. Karp"/>
+	</front>
+      </reference>
+
       <reference anchor="neilmadden"
 		 target="https://neilmadden.blog/2021/03/20/towards-a-standard-for-bearer-token-urls/">
 	<front>
