@@ -548,7 +548,7 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	compromised trampoline document is called a trampoline-compromised web-cap. A compromised
 	trampoline document SHOULD not be served anymore and an application SHOULD NOT generate
 	trampoline-compromised web-caps. Any new web-caps SHOULD be issued with a new trampoline URI
-	that identifies a new, fixed trampoline document. It is RECOMMENDED that any capability that
+	that identifies a new, safer trampoline document. It is RECOMMENDED that any capability that
 	is suspected to be reachable through a trampoline-compromised web-cap be revoked immediately
 	(see <xref target="revocation"/>).
       </t>
