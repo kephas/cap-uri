@@ -966,6 +966,18 @@ IRI-reference  = &lt;IRI-reference, see [RFC3987], Section 2.2>
 	    include features to wrap them in a membrane to enable <xref
 	    target="revocation">revocation</xref>.
 	  </t>
+	  <t>
+	    Note that it's okay for several capability-URIs to share a token if they are part of the
+	    same auhtority, in contrast to an attenuated capability-URI. For example, a business API
+	    could expose a customer resource representation containing two state transitions to edit
+	    its information or to close the account, looking like these examples:
+	    <list style="symbols">
+	      <t><tt>cap-https://bt=yO4ApDmUvfxE9mNbSTQHEw@baz.net/customer?edit</tt></t>
+	      <t><tt>cap-https://bt=yO4ApDmUvfxE9mNbSTQHEw@baz.net/customer?close</tt></t>
+	    </list>
+	    On the other hand, the capability-URI to access a customer account and a capability-URI
+	    to access one order of that customer SHOULD NOT share the same token.
+	  </t>
 	</section>
 
 	<section title="Attenuation by intermediary">
