@@ -1353,6 +1353,11 @@ IRI-reference  = &lt;IRI-reference, see [RFC3987], Section 2.2>
 	  target="credentials"/>).
 	</t>
       </list>
+      <t>
+	The final form of this specification owes a lot to Alan Karp's several feedbacks. His
+	suggestion to mention Waterken led to the design of web-caps, which were not initially
+	planned.
+      </t>
     </section>
   </middle>
 
