@@ -1330,28 +1330,29 @@ IRI-reference  = &lt;IRI-reference, see [RFC3987], Section 2.2>
       <t>
 	The <tt>bearcap</tt> URI scheme was broader in that it was supposed to embed any URI where a
 	bearer token might be used to create a capability URI. Using dedicated URI schemes to embed
-	HTTP URIs has several desirable properties:</t>
-	<list style="symbol">
-	  <t>
-	    First and foremost, it avoids the confusion when new URIs are embedded in
-	    capability-URIs. Different implementations might presume different semantics or
-	    implementation details which, for something that is central to security, can easily lead
-	    to serious security issues. Thus, if another URI scheme can be embedded as a
-	    capability-URI, a new scheme will be created with precise semantics.
-	  </t>
-	  <t>
-	    When embedding a URI with query parameters and/or a fragment, it avoids the need to
-	    escape them, which makes such URIs easier to transcribe, which is an important design
-	    goal of URIs (see <xref target="oob">out-of-band communication</xref>).
-	  </t>
-	  <t>
-	    When using absolute capability-URIs, the sensitive information is in a part of the URI
-	    that the generic syntax of URIs already treats as sensitive, which makes it more likely
-	    that even software that doesn't recognizes these new URI schemes would handle the
-	    sensitive part accordingly (but an application SHOULD NOT rely on that, see <xref
-	    target="credentials"/>).
-	  </t>
-	</list>
+	HTTP URIs has several desirable properties:
+      </t>
+      <list style="symbol">
+	<t>
+	  First and foremost, it avoids the confusion when new URIs are embedded in
+	  capability-URIs. Different implementations might presume different semantics or
+	  implementation details which, for something that is central to security, can easily lead
+	  to serious security issues. Thus, if another URI scheme can be embedded as a
+	  capability-URI, a new scheme will be created with precise semantics.
+	</t>
+	<t>
+	  When embedding a URI with query parameters and/or a fragment, it avoids the need to escape
+	  them, which makes such URIs easier to transcribe, which is an important design goal of
+	  URIs (see <xref target="oob">out-of-band communication</xref>).
+	</t>
+	<t>
+	  When using absolute capability-URIs, the sensitive information is in a part of the URI
+	  that the generic syntax of URIs already treats as sensitive, which makes it more likely
+	  that even software that doesn't recognizes these new URI schemes would handle the
+	  sensitive part accordingly (but an application SHOULD NOT rely on that, see <xref
+	  target="credentials"/>).
+	</t>
+      </list>
     </section>
   </middle>
 
