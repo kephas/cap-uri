@@ -199,6 +199,11 @@ DATA
 bar
 	</artwork></figure></t>
 	<t>
+	  While there a few cases where similar capability-URIs share authorization data (see <xref
+	  target="attdef"/>), the most common behavior will be that reusing the same authorization
+	  data with a different host, path or query will result in an error.
+	</t>
+	<t>
 	  Each URI scheme corresponds to an existing HTTP URI scheme, extended with rich
 	  authorization data. In a target capability-URI, except for the <tt>userinfo</tt> component
 	  which maps to the capability-URI's <tt>authorization</tt> component, every component has
@@ -399,6 +404,16 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	    <tt>itoken</tt> encoded in UTF-8 are also valid for the <tt>field-vchar</tt> rule of
 	    HTTP.
 	  </t>
+	  <t>
+	    Whereas tokens encoding a Swiss number (see <xref target="unforgeable"/>) can be
+	    relatively short (e.g. a 256 bits number only needs 44 characters in base64), tokens
+	    containing a chain of certificates (see <xref target="offatt"/>) can easily grow to a
+	    few hundred characters or even a few thousand ones. While there is no limit for URIs or
+	    HTTP headers in their respective RFCs, several HTTP components like browsers, servers
+	    and caches, for performance and security reasons, limit the size of URIs, requests and
+	    headers they will accept to handle. As several of them have a limit of 8kb (including
+	    Nginx and Tomcat), it is RECOMMENDED to keep tokens under that size.
+	  </t>
 	</section>
 
 	<section anchor="token-format" title="Token format">
@@ -507,7 +522,7 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
       </t>
       <t>
 	When the browser makes a request for the trampoline URI, the representation in the server's
-	response SHOULD be a document with client-side code that will extract the capability-URI,
+	response MUST be a document with client-side code that will extract the capability-URI,
 	resolve it, and replace the document in the browser with the result of requesting the
 	capability-URI. A document that implementents these steps is called a trampoline document.
       </t>
@@ -545,12 +560,12 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
 	It is RECOMMENDED that the resource identified by a trampoline URI be effectively
 	immutable. If any security issue is found with a trampoline document, it is called a
 	compromised trampoline document, and any web-cap whose trampoline URI identifies a
-	compromised trampoline document is called a trampoline-compromised web-cap. A compromised
-	trampoline document SHOULD not be served anymore and an application SHOULD NOT generate
-	trampoline-compromised web-caps. Any new web-caps SHOULD be issued with a new trampoline URI
-	that identifies a new, safer trampoline document. It is RECOMMENDED that any capability that
-	is suspected to be reachable through a trampoline-compromised web-cap be revoked immediately
-	(see <xref target="revocation"/>).
+	compromised trampoline document is called a trampoline-compromised web-cap. As sooon as a
+	new, safer trampoline document is deployed, a compromised trampoline document MUST not be
+	served anymore and an application MUST NOT generate trampoline-compromised web-caps. Any new
+	web-caps MUST be issued with the new trampoline's URI. It is RECOMMENDED that any capability
+	that is suspected to be reachable through a trampoline-compromised web-cap be revoked
+	immediately (see <xref target="revocation"/>).
       </t>
       <t>
 	To limit browsers requesting the trampoline document more than once, it is RECOMMENDED to
@@ -569,7 +584,7 @@ ifragment      = &lt;ifragment, see [RFC3987], Section 2.2>
       </t>
       <t>
 	Because the fragment of a web-cap can be reliably identified as a capability-URI, a
-	capability-URI-aware agent given a web-cap SHOULD resolve the capability-URI directly and
+	capability-URI-aware agent given a web-cap MUST resolve the capability-URI directly and
 	request only that URI.
       </t>
       <t>
@@ -939,14 +954,14 @@ IRI-reference  = &lt;IRI-reference, see [RFC3987], Section 2.2>
 	  metadata it produces.
 	</t>
 
-	<section title="Attenuation by default">
+	<section anchor="attdef" title="Attenuation by default">
 	  <t>
 	    When a service exposes authority through capability-URIs, like a file storage or a
 	    business dashboard, it SHOULD by default expose each element through an attenuated
-	    capability. For example, using bearer tokens, requesting a directory listing from a file
-	    storage SHOULD result in a list with each file in the directory with a corresponding
-	    capability-URI whose token can only be used to access that file. If that file is itself
-	    a directory, listing its contents SHOULD also work the same way. When accessed with
+	    capability. For example, requesting a directory listing from a file storage SHOULD
+	    result in a list with each file in the directory with a corresponding capability-URI
+	    whose authority data can only be used to access that file. If that file is itself a
+	    directory, listing its contents SHOULD also work the same way. When accessed with
 	    read-write authority, such a storage service MAY either include two capabilities for
 	    each file in a listing, one for read/write authority, the other for read-only authority,
 	    or MAY provide a way to get a read-only version of any read/write capability. Of course,
@@ -967,16 +982,17 @@ IRI-reference  = &lt;IRI-reference, see [RFC3987], Section 2.2>
 	    target="revocation">revocation</xref>.
 	  </t>
 	  <t>
-	    Note that it's okay for several capability-URIs to share a token if they are part of the
-	    same auhtority, in contrast to an attenuated capability-URI. For example, a business API
-	    could expose a customer resource representation containing two state transitions to edit
-	    its information or to close the account, looking like these examples:
+	    Note that it's okay for several capability-URIs to share authorization data if they are
+	    part of the same auhtority, in contrast to an attenuated capability-URI. For example, a
+	    business API could expose a customer resource representation containing two state
+	    transitions to edit its information or to close the account, looking like these
+	    examples:
 	    <list style="symbols">
 	      <t><tt>cap-https://bt=yO4ApDmUvfxE9mNbSTQHEw@baz.net/customer?edit</tt></t>
 	      <t><tt>cap-https://bt=yO4ApDmUvfxE9mNbSTQHEw@baz.net/customer?close</tt></t>
 	    </list>
 	    On the other hand, the capability-URI to access a customer account and a capability-URI
-	    to access one order of that customer SHOULD NOT share the same token.
+	    to access one order of that customer SHOULD NOT share the same authorization data.
 	  </t>
 	</section>
 
