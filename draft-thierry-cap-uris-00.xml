@@ -1278,6 +1278,31 @@ IRI-reference  = &lt;IRI-reference, see [RFC3987], Section 2.2>
       </section>
     </section>
 
+    <section title="Performance considerations">
+      <section title="Latency cost">
+	<t>
+	  A huge benefit of capabilities is that they make it possible to create composable security
+	  policies, in the form of graphs of objects. One object might provide revocation, another
+	  might provide rate limiting, yet another might provide action after a timeout, etc… In
+	  terms of security, this separation of concerns means that each object can be fairly
+	  simple, which makes it easier to assess its correctness and safety.
+	</t>
+	<t>
+	  When those objects are data structures within a single process, the cost of indirection
+	  that comes with going through several of these objects to get to the target object is
+	  fairly minimal, especially since that execution path is usually not a performance
+	  bottleneck.
+	</t>
+	<t>
+	  But in the context of a distributed system, when some objects are separated by network
+	  hops, each of those hops adds latency. While it is technically possible to use a graph of
+	  7 web services to compose together security abstractions, this usually could not be used
+	  for a user-facing Web application (where it is recommended to have a response latency of
+	  200ms or less).
+	</t>
+      </section>
+    </section>
+
     <section title="IANA Considerations">
       <t>
 	This specification defines several new URI schemes. Here are the informations for
