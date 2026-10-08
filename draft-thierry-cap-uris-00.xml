@@ -1278,6 +1278,42 @@ IRI-reference  = &lt;IRI-reference, see [RFC3987], Section 2.2>
       </section>
     </section>
 
+    <section title="Performance considerations">
+      <section title="Latency cost">
+	<t>
+	  A huge benefit of capabilities is that they make it possible to create composable security
+	  policies, in the form of graphs of objects. One object might provide revocation, another
+	  might provide rate limiting, yet another might provide action after a timeout, etc… In
+	  terms of security, this separation of concerns means that each object can be fairly
+	  simple, which makes it easier to assess its correctness and safety.
+	</t>
+	<t>
+	  When those objects are data structures within a single process, the cost of indirection
+	  that comes with going through several of these objects to get to the target object is
+	  fairly minimal, especially since that execution path is usually not a performance
+	  bottleneck.
+	</t>
+	<t>
+	  But in the context of a distributed system, when some objects are separated by network
+	  hops, each of those hops adds latency. While it is technically possible to use a graph of
+	  7 web services to compose together security abstractions, this usually could not be used
+	  for a user-facing Web application (where it is recommended to have a response latency of
+	  200ms or less).
+	</t>
+	<t>
+	  It is RECOMMENDED to use no more than one web service between a client and a target
+	  resource to add security abstractions missing on the target resource's server. There may
+	  be use cases where the latency cost of a longer chain of intermediate web services will be
+	  an acceptable trade-off, but to avoid that possibility, it is RECOMMENDED that a web
+	  service used to add security abstractions be maximally expressive. One solution is to
+	  provide the ability to express complex security abstractions with a capability-secure
+	  programming language (like W7, E or Pony). While permitting user-provided code to execute
+	  on a server is usually extremely unsafe, capability-based security at the language level
+	  is a known way to effectively limit what that user-provided code is able to do.
+	</t>
+      </section>
+    </section>
+
     <section title="IANA Considerations">
       <t>
 	This specification defines several new URI schemes. Here are the informations for
